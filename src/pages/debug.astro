@@ -29,8 +29,11 @@ import Layout from "../layouts/Layout.astro";
     <button id="encrypt-btn">Encrypt</button>
     <div style="margin-top:1rem;">
       <strong>Encrypted:</strong>
-      <div id="encrypt-output" style="background:#f0f0f0; padding:0.5rem;">
-      </div>
+      <textarea
+        id="encrypt-output"
+        style="width:100%; height:3rem; background:#f0f0f0; padding:0.5rem;"
+        readonly
+      ></textarea>
     </div>
   </div>
 
@@ -58,14 +61,18 @@ import Layout from "../layouts/Layout.astro";
     <button id="decrypt-btn">Decrypt</button>
     <div style="margin-top:1rem;">
       <strong>Decrypted:</strong>
-      <div id="decrypt-output" style="background:#f0f0f0; padding:0.5rem;">
-      </div>
+      <textarea
+        id="decrypt-output"
+        style="width:100%; height:3rem; background:#f0f0f0; padding:0.5rem;"
+        readonly
+      ></textarea>
     </div>
   </div>
 
   <script>
     import { encrypt, decrypt } from "../assets/crypto.ts";
-    // --- BIND EVENTS ---
+
+    // --- ENCRYPT ---
     const encryptBtn = document.getElementById("encrypt-btn");
     const encryptMessageInput = document.getElementById("encrypt-message");
     const encryptPasswordInput = document.getElementById("encrypt-password");
@@ -74,15 +81,22 @@ import Layout from "../layouts/Layout.astro";
     encryptBtn.addEventListener("click", async () => {
       const msg = encryptMessageInput.value;
       const password = encryptPasswordInput.value;
+      console.log("Encrypt Input:", { msg, password });
+
       if (!msg || !password) return alert("Enter both message and password");
       try {
         const encrypted = await encrypt(msg, password);
-        encryptOutput.textContent = encrypted;
-      } catch {
-        encryptOutput.textContent = "❌ Encryption failed";
+        console.log("Encrypted Output:", encrypted);
+        encryptOutput.value = encrypted;
+      } catch (err) {
+        console.error("Encryption Error:", err);
+        encryptOutput.value = "❌ Encryption failed";
       }
     });
 
+    encryptOutput.addEventListener("click", () => encryptOutput.select());
+
+    // --- DECRYPT ---
     const decryptBtn = document.getElementById("decrypt-btn");
     const decryptMessageInput = document.getElementById("decrypt-message");
     const decryptPasswordInput = document.getElementById("decrypt-password");
@@ -91,15 +105,21 @@ import Layout from "../layouts/Layout.astro";
     decryptBtn.addEventListener("click", async () => {
       const encrypted = decryptMessageInput.value;
       const password = decryptPasswordInput.value;
+      console.log("Decrypt Input:", { encrypted, password });
+
       if (!encrypted || !password)
         return alert("Enter both encrypted string and password");
       try {
         const decrypted = await decrypt(encrypted, password);
-        decryptOutput.textContent = decrypted;
-      } catch {
-        decryptOutput.textContent =
+        console.log("Decrypted Output:", decrypted);
+        decryptOutput.value = decrypted;
+      } catch (err) {
+        console.error("Decryption Error:", err);
+        decryptOutput.value =
           "❌ Decryption failed: wrong password or corrupted data";
       }
     });
+
+    decryptOutput.addEventListener("click", () => decryptOutput.select());
   </script>
 </Layout>

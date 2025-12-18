@@ -1,28 +1,22 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { fetchPanels, type Panel, type PanelRecord } from "../assets/panels";
-  import { weightedSearch } from "../assets/search";
+  import {
+    fetchPanels,
+    type PanelEntries,
+    type PanelRecord,
+  } from "../assets/panels";
+  import { filterPanels, type Query } from "../assets/search";
+  import Slider from "./Slider.svelte";
 
-  let panels: [string, Panel][] = $state([]);
-  let constPanels: [string, Panel][] = $state([]);
+  let panels: PanelEntries = $state([]);
+  let constPanels: PanelEntries = $state([]);
   let error: string = $state("");
   let loading = $state(true);
-
-  const weights = {
-    price: 2, // make price twice as important
-    watt: 1, // default weight
-    battery: 2,
-    structure: 0.5, // less important
-    panelCable: 1,
-    wiringCable: 1,
-    light: 1,
-    charger: 1,
-    extraHour: 1,
-    dcFanSmall: 1,
-  };
+  let min = $state(10);
+  let max = $state(20);
 
   // filter state
-  let filters: Partial<Record<keyof Panel, string | number>> = {};
+  let filters: Query = {};
 
   // pagination state
   let currentPage = $state(1);
@@ -74,48 +68,19 @@
       return;
     }
 
-    panels = weightedSearch(constPanels, activeFilters, weights);
+    panels = filterPanels(constPanels, filters);
   }
 </script>
+
+<h1>HEllo</h1>
+
+<Slider bind:from={min} bind:to={max} />
 
 {#if loading}
   <p>Loading panels</p>
 {:else if error}
   <p style="color:red">Error: {error}</p>
 {:else}
-  <div
-    style="margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem;"
-  >
-    <input placeholder="Structure" bind:value={filters.structure} />
-    <input placeholder="Price" type="number" bind:value={filters.price} />
-    <input placeholder="Battery" type="number" bind:value={filters.battery} />
-    <input placeholder="Watt" type="number" bind:value={filters.watt} />
-    <input
-      placeholder="Panel Cable"
-      type="number"
-      bind:value={filters.panelCable}
-    />
-    <input
-      placeholder="Wiring Cable"
-      type="number"
-      bind:value={filters.wiringCable}
-    />
-    <input placeholder="Light" type="number" bind:value={filters.light} />
-    <input placeholder="Charger" type="number" bind:value={filters.charger} />
-    <input
-      placeholder="Extra Hour"
-      type="number"
-      bind:value={filters.extraHour}
-    />
-    <input
-      placeholder="DC Fan Small"
-      type="number"
-      bind:value={filters.dcFanSmall}
-    />
-    <!-- Add any other numeric or string fields from Panel here -->
-    <button onclick={search}>Search</button>
-  </div>
-
   <ul>
     {#each pagedPanels as [key, panel]}
       <li>

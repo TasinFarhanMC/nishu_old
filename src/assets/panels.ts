@@ -7,6 +7,23 @@ export interface PanelRecord {
   [key: number]: Panel;
 }
 
+export const panel_entry_names: Record<string, string> = {
+  watt: "Power",
+  battery: "Battery Capacity",
+  panelCable: "Panel Cable",
+  wiringCable: "Wiring Cable",
+  light: "Lighting",
+  charger: "Charger",
+  structure: "Mounting Structure",
+  hour: "Operational Hours",
+  extraHour: "Extra Hours",
+  dcFanSmall: "Small DC Fan",
+  dcFanTable: "Table DC Fan",
+  dcFanStand: "Standing DC Fan",
+  price: "Price"
+};
+export type PanelEntries = [string, Panel][];
+
 let cachedDB: IDBDatabase | null = null;
 
 function openDB(): Promise<IDBDatabase> {
